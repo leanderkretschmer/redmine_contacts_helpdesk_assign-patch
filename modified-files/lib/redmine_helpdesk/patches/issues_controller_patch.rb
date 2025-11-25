@@ -55,18 +55,34 @@ module RedmineHelpdesk
             contact = Contact.find_by(id: assigned_id)
             project = @issue.project
             if contact && project && contact.projects.where(id: project.id).exists?
-              @issue.contacts << contact unless @issue.contacts.include?(contact)
+              begin
+                ContactsIssue.find_or_create_by(issue_id: @issue.id, contact_id: contact.id)
+              rescue NameError
+                @issue.contacts << contact unless @issue.contacts.include?(contact)
+              end
               if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-                @issue.custom_field_values = (@issue.custom_field_values || {})
-                @issue.custom_field_values[cf.id] = contact.id.to_s
+                begin
+                  @issue.custom_field_values = (@issue.custom_field_values || {})
+                  @issue.custom_field_values[cf.id.to_s] = contact.id.to_s
+                rescue
+                  @issue.custom_field_values = { cf.id.to_s => contact.id.to_s }
+                end
               end
               @issue.save!
             end
           else
-            @issue.contacts.clear if @issue.contacts.any?
+            begin
+              ContactsIssue.where(issue_id: @issue.id).delete_all
+            rescue NameError
+              @issue.contacts.clear if @issue.contacts.any?
+            end
             if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-              @issue.custom_field_values = (@issue.custom_field_values || {})
-              @issue.custom_field_values[cf.id] = ''
+              begin
+                @issue.custom_field_values = (@issue.custom_field_values || {})
+                @issue.custom_field_values[cf.id.to_s] = ''
+              rescue
+                @issue.custom_field_values = { cf.id.to_s => '' }
+              end
               @issue.save!
             end
           end
@@ -95,8 +111,12 @@ module RedmineHelpdesk
             if contact && project && contact.projects.where(id: project.id).exists?
               @issue.contacts << contact unless @issue.contacts.include?(contact)
               if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-                @issue.custom_field_values = (@issue.custom_field_values || {})
-                @issue.custom_field_values[cf.id] = contact.id.to_s
+                begin
+                  @issue.custom_field_values = (@issue.custom_field_values || {})
+                  @issue.custom_field_values[cf.id.to_s] = contact.id.to_s
+                rescue
+                  @issue.custom_field_values = { cf.id.to_s => contact.id.to_s }
+                end
               end
             end
           end
