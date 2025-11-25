@@ -7,19 +7,16 @@
    end %>
 <% if assigned_contact %>
 <script>
-  (function() {
-    var attrs = document.querySelector('.issue .attributes');
-    if (!attrs) return;
-    var dts = attrs.querySelectorAll('dt');
-    var targetDt = null;
-    for (var i = 0; i < dts.length; i++) {
-      var txt = (dts[i].textContent || '').trim();
-      if (txt === '<%= j l(:field_assigned_to) %>') { targetDt = dts[i]; break; }
-    }
-    if (!targetDt) return;
-    var dd = targetDt.nextElementSibling;
-    if (!dd) return;
-    dd.innerHTML = '<%= j(contact_tag(assigned_contact, type: "plain")) %>';
-  })();
+  $(function(){
+    var attrs = $('.issue .attributes').first();
+    if (!attrs.length) return;
+    var targetDt = attrs.find('dt').filter(function(){
+      return ($(this).text() || '').trim() === '<%= j l(:field_assigned_to) %>';
+    }).first();
+    if (!targetDt.length) return;
+    var dd = targetDt.next('dd');
+    if (!dd.length) return;
+    dd.html('<%= j(contact_tag(assigned_contact, type: "plain")) %>');
+  });
 </script>
 <% end %>

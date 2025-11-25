@@ -177,3 +177,22 @@ begin
   require helpdesk_patch_path if File.exist?(helpdesk_patch_path + '.rb')
 rescue LoadError
 end
+
+# Ensure Issue custom field for Assigned Contact exists for API visibility
+begin
+  if defined?(IssueCustomField)
+    cf = IssueCustomField.find_by(name: 'Assigned Contact')
+    if cf.nil?
+      cf = IssueCustomField.new(
+        name: 'Assigned Contact',
+        field_format: 'int',
+        is_required: false,
+        is_for_all: true,
+        visible: true,
+        description: 'ID des zugewiesenen CRM-Kontakts'
+      )
+      cf.save
+    end
+  end
+rescue => e
+end
