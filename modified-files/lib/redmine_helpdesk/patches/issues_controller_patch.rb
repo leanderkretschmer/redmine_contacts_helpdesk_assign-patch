@@ -48,6 +48,14 @@ module RedmineHelpdesk
         end
 
         def update_issue_from_params_with_helpdesk
+          assigned_id = params[:assigned_contact_id].presence
+          if assigned_id
+            cf = IssueCustomField.find_by(name: 'Assigned Contact')
+            params[:issue] ||= {}
+            params[:issue][:custom_field_values] ||= {}
+            params[:issue][:custom_field_values][cf.id.to_s] = assigned_id if cf
+            params[:issue][:assigned_to_id] = ''
+          end
           is_updated = update_issue_from_params_without_helpdesk
           return false unless is_updated
           assigned_id = params[:assigned_contact_id].presence
@@ -60,14 +68,6 @@ module RedmineHelpdesk
               rescue NameError
                 @issue.contacts << contact unless @issue.contacts.include?(contact)
               end
-              if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-                begin
-                  @issue.custom_field_values = (@issue.custom_field_values || {})
-                  @issue.custom_field_values[cf.id.to_s] = contact.id.to_s
-                rescue
-                  @issue.custom_field_values = { cf.id.to_s => contact.id.to_s }
-                end
-              end
               @issue.save!
             end
           else
@@ -75,15 +75,6 @@ module RedmineHelpdesk
               ContactsIssue.where(issue_id: @issue.id).delete_all
             rescue NameError
               @issue.contacts.clear if @issue.contacts.any?
-            end
-            if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-              begin
-                @issue.custom_field_values = (@issue.custom_field_values || {})
-                @issue.custom_field_values[cf.id.to_s] = ''
-              rescue
-                @issue.custom_field_values = { cf.id.to_s => '' }
-              end
-              @issue.save!
             end
           end
           if params[:helpdesk] && params[:helpdesk][:is_send_mail].to_i > 0 && User.current.allowed_to?(:send_response, @project) && @issue.customer
@@ -110,14 +101,6 @@ module RedmineHelpdesk
             project = @issue.project
             if contact && project && contact.projects.where(id: project.id).exists?
               @issue.contacts << contact unless @issue.contacts.include?(contact)
-              if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
-                begin
-                  @issue.custom_field_values = (@issue.custom_field_values || {})
-                  @issue.custom_field_values[cf.id.to_s] = contact.id.to_s
-                rescue
-                  @issue.custom_field_values = { cf.id.to_s => contact.id.to_s }
-                end
-              end
             end
           end
         end
