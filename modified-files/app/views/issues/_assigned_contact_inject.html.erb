@@ -8,7 +8,7 @@
     if (!select) return;
     var og = document.createElement('optgroup');
     og.label = 'Contacts';
-    var contacts = <%= raw contacts.map { |id, fn, ln, co| {id: id, name: [fn, ln, co].compact.join(' ').trim} }.to_json %>;
+    var contacts = <%= raw contacts.map { |id, fn, ln, co| {id: id, name: [fn, ln, co].compact.join(' ').strip} }.to_json %>;
     contacts.forEach(function(c){
       var opt = document.createElement('option');
       opt.value = 'c_' + c.id;
