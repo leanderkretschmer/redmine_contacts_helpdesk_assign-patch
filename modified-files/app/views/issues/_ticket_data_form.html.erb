@@ -60,7 +60,7 @@
   });
 <% end %>
 
-<% if !@issue.new_record? && User.current.allowed_to?(:edit_helpdesk_tickets, @issue.project) %>
+<% if !@issue.new_record? && User.current.allowed_to?(:edit_issues, @issue.project) %>
   <div class="email-template">
     <div class="helpdeks-ticket-line"></div>
     <div class="splitcontent">
