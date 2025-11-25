@@ -1,0 +1,40 @@
+<%# MODIFIED FILE: Injects contacts into the standard assigned_to dropdown and maps selection %>
+<% contacts = Contact.visible.order(:last_name, :first_name).pluck(:id, :first_name, :last_name, :company) %>
+<%= hidden_field_tag :assigned_is_contact, '0' %>
+<%= hidden_field_tag :assigned_contact_id, '' %>
+<script>
+  (function() {
+    var select = document.getElementById('issue_assigned_to_id');
+    if (!select) return;
+    var og = document.createElement('optgroup');
+    og.label = 'Contacts';
+    var contacts = <%= raw contacts.map { |id, fn, ln, co| {id: id, name: [fn, ln, co].compact.join(' ').trim} }.to_json %>;
+    contacts.forEach(function(c){
+      var opt = document.createElement('option');
+      opt.value = 'c_' + c.id;
+      opt.textContent = c.name;
+      og.appendChild(opt);
+    });
+    select.appendChild(og);
+    select.addEventListener('change', function(e){
+      var val = select.value || '';
+      var isContact = val.startsWith('c_');
+      var hiddenFlag = document.querySelector('input[name="assigned_is_contact"]');
+      var hiddenId = document.querySelector('input[name="assigned_contact_id"]');
+      if (isContact) {
+        hiddenFlag.value = '1';
+        hiddenId.value = val.substring(2);
+        // prevent invalid principal id submit
+        // keep UI selection, but ensure server gets empty assigned_to_id
+        var dummy = document.createElement('option');
+        dummy.value = '';
+        dummy.textContent = '';
+        select.appendChild(dummy);
+        select.value = '';
+      } else {
+        hiddenFlag.value = '0';
+        hiddenId.value = '';
+      }
+    });
+  })();
+</script>
