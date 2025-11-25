@@ -53,7 +53,8 @@ module RedmineHelpdesk
           assigned_id = params[:assigned_contact_id].presence
           if assigned_id
             contact = Contact.find_by(id: assigned_id)
-            if contact && contact.projects.where(id: @project.id).exists?
+            project = @issue.project
+            if contact && project && contact.projects.where(id: project.id).exists?
               @issue.contacts << contact unless @issue.contacts.include?(contact)
               if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
                 @issue.custom_field_values = (@issue.custom_field_values || {})
@@ -90,7 +91,8 @@ module RedmineHelpdesk
           assigned_id = params[:assigned_contact_id].presence
           if assigned_id
             contact = Contact.find_by(id: assigned_id)
-            if contact && contact.projects.where(id: @project.id).exists?
+            project = @issue.project
+            if contact && project && contact.projects.where(id: project.id).exists?
               @issue.contacts << contact unless @issue.contacts.include?(contact)
               if (cf = IssueCustomField.find_by(name: 'Assigned Contact'))
                 @issue.custom_field_values = (@issue.custom_field_values || {})
