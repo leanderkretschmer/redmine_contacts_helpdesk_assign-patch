@@ -1,6 +1,6 @@
 # redmine contacts helpdesk plugin (pro version)
 COPY plugin-downloads/redmine_contacts_helpdesk-4_2_5-pro.zip /opt
-COPY plugin-modified-files/redmine_contacts_helpdesk-patch/* /opt/modified-files
+COPY plugin-modified-files/redmine_contacts_helpdesk-patch/ /opt/modified-files
 RUN unzip -o /opt/redmine_contacts_helpdesk-4_2_5-pro.zip -d /usr/src/redmine/plugins/ && \
-    cp /opt/modified-files/* /usr/src/redmine/plugins/redmine_contacts_helpdesk/
+    cp -R /opt/modified-files/* /usr/src/redmine/plugins/redmine_contacts_helpdesk/
 

@@ -2,7 +2,8 @@
    Changes:
    - Adds select field 'assigned_contact_id' using helpdesk_select_customer_tag.
    - Keeps original Helpdesk customer fields and behavior intact.
-   - Selected contact is linked to issue via controller patch (create/update). %>
+   - Selected contact is linked to issue via controller patch (create/update).
+   - Also renders selection when editing existing issues. %>
 <% if @issue.new_record? && !@copy_from && User.current.allowed_to?(:edit_helpdesk_tickets, @issue.project) && (@issue.tracker_id.to_s == HelpdeskSettings["helpdesk_tracker", @issue.project.id] || HelpdeskSettings["helpdesk_tracker", @issue.project.id] == 'all') %>
   <div class="email-template">
     <div class="helpdeks-ticket-line"></div>
@@ -57,4 +58,19 @@
       var data = e.params.data;
       $('.helpdesk-ticket-customer-id').val(data.value);
   });
+<% end %>
+
+<% if !@issue.new_record? && User.current.allowed_to?(:edit_helpdesk_tickets, @issue.project) %>
+  <div class="email-template">
+    <div class="helpdeks-ticket-line"></div>
+    <div class="splitcontent">
+      <div class="splitcontentright">
+        <p>
+          <%= label_tag :assigned_contact_id, l(:field_assigned_to) %>
+          <%= helpdesk_select_customer_tag('assigned_contact_id', [[@issue.contacts.try(:first).try(:name), @issue.contacts.try(:first).try(:id)]], selected: @issue.contacts.try(:first).try(:id), include_blank: true) %>
+        </p>
+      </div>
+    </div>
+    <div style="clear:both;"></div>
+  </div>
 <% end %>
