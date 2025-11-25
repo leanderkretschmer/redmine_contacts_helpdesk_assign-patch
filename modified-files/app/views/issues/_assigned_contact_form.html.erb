@@ -1,13 +1,12 @@
 <%# MODIFIED FILE: Injects Assigned Contact selection into issue edit/create form %>
-<% if User.current.allowed_to?(:edit_issues, @issue.project) %>
-  <div class="splitcontent">
-    <div class="splitcontentright">
-      <p>
-        <%= label_tag :assigned_contact_id, l(:field_assigned_to) %>
-        <%= select_tag 'assigned_contact_id',
-              options_from_collection_for_select(Contact.visible.order(:last_name, :first_name), 'id', 'name', @issue.contacts.try(:first).try(:id)),
-              include_blank: true %>
-      </p>
-    </div>
+<div class="splitcontent">
+  <div class="splitcontentright">
+    <p>
+      <%= label_tag :assigned_contact_id, l(:field_assigned_to) %>
+      <%= select_tag 'assigned_contact_id',
+            options_from_collection_for_select(Contact.visible.order(:last_name, :first_name), 'id', 'name', @issue.contacts.try(:first).try(:id)),
+            include_blank: true %>
+    </p>
   </div>
-<% end %>
+  <%= javascript_tag "console.log('Assigned Contact form rendered');" %>
+</div>
